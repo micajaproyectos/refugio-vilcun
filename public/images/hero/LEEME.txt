@@ -1,0 +1,15 @@
+Fotos para el fondo del Hero (portada de la web).
+
+EN USO: hero.png — toma cenital de dron del complejo (1609×977, horizontal).
+Se muestra a pantalla completa en components/Hero.tsx con object-cover y el
+paneo suave .hero-kb.
+
+Si quieres convertir la portada en un slider de varias fotos, el CSS ya está
+listo en globals.css: clases .kb-1…kb-6 (efecto Ken Burns) y .slider-dot.
+Para eso van bien 3–6 fotos horizontales de buena calidad — fogón, terraza,
+restaurante Santa Bárbara, entorno natural. Formato .webp recomendado.
+
+Nota sobre recorte: con object-cover, una foto horizontal en un hero de alto
+completo se recorta bastante en pantallas de celular (se ve la franja
+central). Si el encuadre en móvil no convence, la solución es un recorte
+propio para móvil, no rotar la imagen.

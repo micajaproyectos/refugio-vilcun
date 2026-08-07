@@ -1,0 +1,10 @@
+Coloca aquí el logo corporativo de Refugio del Vilcún.
+
+Formatos sugeridos:
+- logo.svg (preferido, escala sin perder calidad)
+- logo.png (fondo transparente, alta resolución)
+- favicon.png (versión cuadrada simplificada, para el ícono del navegador)
+
+Cuando el logo esté aquí, avísame para reemplazar el logotipo de texto
+("Refugio del Vilcún") en Navbar.tsx y Footer.tsx, y el favicon SVG inline
+de app/layout.tsx y app/manifest.ts por la imagen real.

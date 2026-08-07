@@ -1,0 +1,4 @@
+Fotos del centro de eventos: matrimonios, celebraciones institucionales,
+catering, coffee break, licenciaturas. Formato .webp recomendado.
+
+Se usan en components/Events.tsx y components/Gallery.tsx.

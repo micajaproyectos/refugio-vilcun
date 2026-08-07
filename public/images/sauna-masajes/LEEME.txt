@@ -1,0 +1,3 @@
+Fotos del sauna y sala de masajes. Formato .webp recomendado.
+
+Se usan en components/Services.tsx.

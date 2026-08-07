@@ -1,0 +1,4 @@
+Fotos del Restaurante de grupos Santa Bárbara: salón, mesas, asado al palo,
+chicha en bota, terraza. Formato .webp recomendado.
+
+Se usan en components/RestaurantCafeteria.tsx y components/Gallery.tsx.

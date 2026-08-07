@@ -1,0 +1,4 @@
+Fotos de la Cafetería Chaitén: interior, café, repostería, ambiente.
+Formato .webp recomendado.
+
+Se usan en components/RestaurantCafeteria.tsx y components/Gallery.tsx.

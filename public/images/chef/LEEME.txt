@@ -1,0 +1,20 @@
+Fotografía de la chef Karen Medrano, para la sección "Nuestra cocina"
+(components/Chef.tsx), que va justo después del tríptico del hero.
+
+ESTADO ACTUAL: la sección ya no muestra un placeholder — el marco está
+ocupado por plato2.png (el pastel de jaiba), por indicación del cliente.
+La carpeta sigue aquí porque una foto real de la chef sería mejor para
+una sección que habla de ella: hoy el texto presenta a una persona y la
+foto muestra un plato.
+
+Si llega la foto:
+  Nombre sugerido: chef_karen_medrano.png (o .webp)
+  Encuadre HORIZONTAL 3:2 — el marco usa aspect-[3/2] (ej. 1536x1024).
+  Ojo: si se cambia la foto, hay que ajustar ese aspect al ratio del
+  archivo nuevo, o se recortará.
+  Plano medio, en la cocina o el salón, trabajando o mirando a cámara.
+
+Para activarla: cambiar el src del <Photo> en components/Chef.tsx.
+
+IMPORTANTE: es una persona real. Confirmar con ella que autoriza el uso
+de su imagen y de su nombre en el sitio antes de publicar.

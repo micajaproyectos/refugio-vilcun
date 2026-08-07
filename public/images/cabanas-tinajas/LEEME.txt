@@ -1,0 +1,4 @@
+Fotos de las cabañas con tinaja: exterior, interior, tinaja. Formato .webp
+recomendado.
+
+Se usan en components/Services.tsx.

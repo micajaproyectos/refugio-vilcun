@@ -1,0 +1,557 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Bromello — acentos manuscritos (mismo estilo que "Vilcún" en el logo) ───
+   Es una tipografía comercial: no está en Google Fonts, así que el archivo va
+   servido desde public/fonts/. Mientras no exista, `font-display: swap` y la
+   pila de respaldo (Lora) hacen que el sitio se vea correcto igual; al dejar
+   el archivo en su lugar, Bromello se activa sola sin tocar código.
+   Ver public/fonts/LEEME.txt. */
+@font-face {
+  font-family: 'Bromello';
+  src: url('/fonts/Bromello.woff2') format('woff2'),
+       url('/fonts/Bromello.woff')  format('woff'),
+       url('/fonts/Bromello.otf')   format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Paleta derivada del logo corporativo — ver tailwind.config.ts */
+:root {
+  --color-gold:       #ce7d24;
+  --color-gold-light: #f5a94f;
+  --color-cream:      #f5f0e8;
+  --color-lake:       #17606f;
+  --color-lake-light: #2d9cb1;
+  --color-bg:         #f5f0e8;
+  --color-bg-dark:    #062636;
+  --color-ink:        #0b2430;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+body {
+  background-color: #f5f0e8;
+  color: #0b2430;
+  overflow-x: hidden;
+  font-family: var(--font-lora), Georgia, serif;
+}
+
+/* Grain texture overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.025;
+  z-index: 9999;
+}
+
+/* Separator lines */
+.gold-line {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #ce7d24 30%, #ce7d24 70%, transparent);
+}
+.gold-line-short {
+  width: 60px;
+  height: 1px;
+  background-color: #ce7d24;
+}
+.lake-line {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #17606f 30%, #17606f 70%, transparent);
+}
+.lake-line-short {
+  width: 60px;
+  height: 1px;
+  background-color: #17606f;
+}
+
+/* Section padding */
+.section-padding {
+  @apply py-20 md:py-32 px-6 md:px-12;
+}
+
+/* ─── Scroll reveal ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* Entrada sin desplazamiento, para elementos que viven dentro de un contenedor
+   de scroll: un `translate` de entrada agranda el área desplazable del padre y
+   deja un sobrante que engancha la rueda del mouse. */
+.reveal-fade {
+  opacity: 0;
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-fade.visible { opacity: 1; }
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-left.visible { opacity: 1; transform: translateX(0); }
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(50px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-scale.visible { opacity: 1; transform: scale(1); }
+
+/* Delay utilities */
+.delay-100 { transition-delay: 0.1s; }
+.delay-200 { transition-delay: 0.2s; }
+.delay-300 { transition-delay: 0.3s; }
+.delay-400 { transition-delay: 0.4s; }
+.delay-500 { transition-delay: 0.5s; }
+.delay-600 { transition-delay: 0.6s; }
+.delay-700 { transition-delay: 0.7s; }
+.delay-800 { transition-delay: 0.8s; }
+
+/* ─── Text utilities ─── */
+.text-shadow-dark {
+  text-shadow: 0 2px 40px rgba(0, 0, 0, 0.9), 0 1px 10px rgba(0, 0, 0, 0.85);
+}
+.text-shadow-md {
+  text-shadow: 0 1px 20px rgba(0, 0, 0, 0.75);
+}
+
+/* Acento manuscrito — reemplaza a la itálica, que Cinzel no tiene.
+   `font-style: italic` + `font-synthesis: none` da el comportamiento correcto
+   en ambos escenarios: si Bromello está presente se usa tal cual (sin oblicua
+   falsa, ya es manuscrita); si falta, cae en la itálica real de Lora, que es
+   como se ven hoy estos acentos. Cuando llegue el archivo de Bromello puede
+   necesitar ajuste óptico de tamaño aquí — corre más chica que Cinzel. */
+.script-accent {
+  font-family: 'Bromello', var(--font-lora), cursive;
+  font-style: italic;
+  font-weight: 400;
+}
+/* Aquí había `font-synthesis: none`, para que Bromello —que ya es manuscrita—
+   no recibiera una oblicua falsa el día que llegue el archivo. Pero como el
+   @font-face de Bromello declara estilo normal y el archivo todavía no existe,
+   esa regla dejaba el texto DERECHO en vez de cursivo. Se quitó: hoy manda la
+   itálica real de Lora. Si algún día se instala Bromello y se ve inclinada de
+   más, se repone esta línea. */
+
+.text-gradient-lake {
+  background: linear-gradient(135deg, #17606f 0%, #2d9cb1 50%, #17606f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #b56618 0%, #fba44f 45%, #ce7d24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Custom animations ─── */
+@keyframes bounceArrow {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(10px); opacity: 1; }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes galleryIn {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes wordUp {
+  to { transform: translateY(0); }
+}
+
+.animate-bounce-arrow { animation: bounceArrow 2s ease-in-out infinite; }
+.animate-fade-slide-up { animation: fadeSlideUp 0.9s ease forwards; }
+.animate-fade-in { animation: fadeIn 0.6s ease forwards; }
+
+/* ─── Auto-carousel (reseñas / tarjetas) ─── */
+.review-track {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 60s linear infinite;
+}
+.review-track.reverse { animation-direction: reverse; }
+.review-track:hover { animation-play-state: paused; }
+@media (max-width: 768px) {
+  .review-track { animation-duration: 40s; }
+}
+
+/* ─── Marquesina de actividades (bajo el hero) ───
+   El track desplaza -50%, que equivale a la mitad de las copias, así que el
+   bucle no salta. Se pausa al pasar el cursor para poder leer una actividad. */
+.activities-track {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 42s linear infinite;
+}
+.activities-track:hover { animation-play-state: paused; }
+
+@media (max-width: 768px) {
+  .activities-track { animation-duration: 26s; }
+}
+
+/* El desfile corre SIEMPRE, por decisión del cliente. NO envolverlo en
+   `prefers-reduced-motion`: esa guarda estuvo aquí y dejaba la marquesina
+   inmóvil en cualquier equipo con los efectos de animación desactivados
+   —algo habitual en Windows— sin ningún indicio de que estaba deshabilitada.
+   Mismo error que ya había ocurrido con el carrusel de platos. */
+
+/* ─── Cóndores decorativos (silueta tomada del logo) ───
+   El planeo va en un contenedor aparte de la silueta: el volteo horizontal
+   usa transform, y si ambos compartieran elemento se pisarían entre sí. */
+@keyframes condorDrift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(-10px, -14px, 0) rotate(-3deg); }
+}
+.condor-drift {
+  animation: condorDrift 16s ease-in-out infinite;
+}
+.condor-drift-slow {
+  animation: condorDrift 24s ease-in-out infinite;
+  animation-delay: -7s;
+}
+
+/* El planeo también corre siempre, por el mismo motivo: con la guarda puesta
+   los cóndores quedaban quietos y nunca se veía el efecto. */
+
+/* ─── Gallery items staggered ─── */
+.gallery-item {
+  opacity: 0;
+  animation: galleryIn 0.5s ease forwards;
+}
+
+/* ─── Lightbox ─── */
+.lightbox-overlay {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ─── Custom scrollbar ─── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #f5f0e8; }
+::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #2d9cb1, #062636); border-radius: 2px; }
+
+/* ─── Form inputs ─── */
+.lake-input {
+  @apply w-full bg-transparent border border-lake/25 text-ink placeholder-ink/30 px-4 py-3
+         focus:border-lake focus:outline-none transition-colors duration-300 text-sm;
+}
+
+/* ─── Buttons ─── */
+.btn-lake {
+  @apply inline-block border border-lake text-lake hover:bg-lake hover:text-cream
+         transition-all duration-300 px-8 py-3 text-sm tracking-widest uppercase;
+}
+.btn-lake-filled {
+  @apply inline-block bg-lake text-cream hover:bg-lake-light
+         transition-all duration-300 px-8 py-3 text-sm tracking-widest uppercase font-medium;
+}
+.btn-gold {
+  @apply inline-block border border-gold text-gold hover:bg-gold hover:text-bg-dark
+         transition-all duration-300 px-8 py-3 text-sm tracking-widest uppercase;
+}
+.btn-gold-filled {
+  @apply inline-block bg-gold text-bg-dark hover:bg-gold-light
+         transition-all duration-300 px-8 py-3 text-sm tracking-widest uppercase font-medium;
+}
+
+/* ─── CTA del hero: barrido con relevo de etiqueta ──────────────────────────
+   Superficie plana a propósito: NADA de degradado, bisel, relieve tipográfico
+   ni sombra de color. Ese repertorio imita un material físico y envejece muy
+   mal —es el botón lustroso de los 2000—. Acá la personalidad está entera en
+   el movimiento: el navy sube desde abajo mientras la etiqueta rueda hacia
+   arriba y una segunda copia entra en crema detrás. En reposo es un rectángulo
+   de color plano, sin más. */
+.sweep-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: var(--color-gold);
+  color: #062636;
+}
+
+/* Panel que sube. Va en pseudo-elemento y no en el fondo del botón para que
+   la etiqueta pueda cruzarlo por encima. */
+.sweep-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #062636;
+  transform: translateY(100%);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sweep-cta-label {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  line-height: 1.15;
+}
+.sweep-cta-label > span {
+  display: block;
+  /* 60 ms detrás del panel: la etiqueta parece arrastrada por él y no
+     disparada al mismo tiempo. */
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.06s;
+}
+/* La copia de relevo espera fuera de cuadro, abajo. */
+.sweep-cta-label > span:last-child {
+  position: absolute;
+  inset: 0;
+  color: var(--color-cream);
+  transform: translateY(100%);
+}
+
+/* `:active` replica el hover: en pantalla táctil no hay puntero, y sin esto
+   el botón no daría ninguna respuesta al tocarlo. */
+.sweep-cta:hover::before,
+.sweep-cta:active::before {
+  transform: translateY(0);
+}
+.sweep-cta:hover .sweep-cta-label > span,
+.sweep-cta:active .sweep-cta-label > span {
+  transform: translateY(-100%);
+}
+.sweep-cta:hover .sweep-cta-label > span:last-child,
+.sweep-cta:active .sweep-cta-label > span:last-child {
+  transform: translateY(0);
+}
+
+.sweep-cta:focus-visible {
+  outline: 1px solid var(--color-gold-light);
+  outline-offset: 4px;
+}
+
+/* Secundario: sin marco completo, solo dos cantoneras en diagonal.
+   En hover crecen hasta cerrar el rectángulo. */
+.corner-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-cinzel), Georgia, serif;
+  text-transform: uppercase;
+  background: rgba(6, 38, 54, 0.34);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  transition: background 0.4s ease, color 0.4s ease;
+}
+.corner-cta::before,
+.corner-cta::after {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.4s ease;
+}
+.corner-cta::before {
+  top: 0;
+  left: 0;
+  border-top: 1px solid rgba(206, 125, 36, 0.7);
+  border-left: 1px solid rgba(206, 125, 36, 0.7);
+}
+.corner-cta::after {
+  right: 0;
+  bottom: 0;
+  border-bottom: 1px solid rgba(206, 125, 36, 0.7);
+  border-right: 1px solid rgba(206, 125, 36, 0.7);
+}
+.corner-cta:hover {
+  background: rgba(6, 38, 54, 0.5);
+}
+.corner-cta:hover::before,
+.corner-cta:hover::after {
+  width: 100%;
+  height: 100%;
+  border-color: var(--color-gold-light);
+}
+.corner-cta:active { transform: translateY(1px); }
+.corner-cta:focus-visible {
+  outline: 1px solid var(--color-gold-light);
+  outline-offset: 4px;
+}
+
+/* ─── Fondo en video de sección (ver components/VideoBackground.tsx) ───
+   El archivo es 848×480, así que en escritorio se amplía bastante: la leve
+   desaturación baja el verde y ayuda a que el reescalado se note menos. El
+   fundido de entrada evita el marco negro del primer fotograma. */
+.bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.88);
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+.bg-video.is-ready {
+  opacity: 1;
+}
+
+/* ─── Stats strip ─── */
+.stat-number {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* ─── Hero background pan ─── */
+@keyframes heroKb {
+  from { transform: scale(1)    translate(0,     0);    }
+  to   { transform: scale(1.07) translate(-1%,  -0.5%); }
+}
+.hero-kb {
+  animation: heroKb 8s ease-in-out forwards;
+}
+
+/* ─── Ken Burns slider ─── */
+@keyframes kb1 { from { transform: scale(1)    translate(0, 0);    } to { transform: scale(1.12) translate(-2%, -1%); } }
+@keyframes kb2 { from { transform: scale(1.1)  translate(-2%, 0);  } to { transform: scale(1)    translate(1%,  1%);  } }
+@keyframes kb3 { from { transform: scale(1)    translate(1%, 1%);  } to { transform: scale(1.12) translate(-1%, -2%); } }
+@keyframes kb4 { from { transform: scale(1.08) translate(0, -2%);  } to { transform: scale(1)    translate(2%,  0);   } }
+@keyframes kb5 { from { transform: scale(1)    translate(-1%, 0);  } to { transform: scale(1.1)  translate(1%, -1%);  } }
+@keyframes kb6 { from { transform: scale(1.1)  translate(2%,  0);  } to { transform: scale(1)    translate(-2%, 1%);  } }
+
+.kb-1 { animation: kb1 8s ease-in-out forwards; }
+.kb-2 { animation: kb2 8s ease-in-out forwards; }
+.kb-3 { animation: kb3 8s ease-in-out forwards; }
+.kb-4 { animation: kb4 8s ease-in-out forwards; }
+.kb-5 { animation: kb5 8s ease-in-out forwards; }
+.kb-6 { animation: kb6 8s ease-in-out forwards; }
+
+/* Slide dots */
+.slider-dot {
+  height: 2px;
+  background: rgba(245, 240, 232, 0.25);
+  transition: background 0.4s, flex 0.4s;
+  flex: 1;
+  max-width: 32px;
+}
+.slider-dot.active {
+  background: #2d9cb1;
+  flex: 2;
+  max-width: 64px;
+}
+
+/* ─── Hero: teléfonos con pantalla corta ─── */
+@media (max-width: 639px) {
+  .hero-overline { letter-spacing: 0.32em; }
+  /* 0.14em y no 0.22em desde que el distintivo lleva cuatro rubros: con el
+     interletrado anterior no cabía en una línea en un teléfono angosto. */
+  .hero-badge { letter-spacing: 0.14em; }
+}
+
+@media (max-width: 767px) and (max-height: 720px) {
+  .hero-content { padding-bottom: 3rem; }
+  .hero-title-a { font-size: 3.4rem !important; }
+  .hero-title-b { font-size: 2.9rem !important; }
+  .hero-sub { margin-bottom: 1.25rem; }
+  .hero-cta { padding-top: 1rem; padding-bottom: 1rem; }
+}
+
+/* ─── Word reveal (hero) ─── */
+.word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.word-inner {
+  display: inline-block;
+  transform: translateY(110%);
+}
+.word-inner.revealed {
+  animation: wordUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ─── Horizontal gallery drag ─── */
+.gallery-track {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.gallery-track::-webkit-scrollbar { display: none; }
+.gallery-track.is-dragging { cursor: grabbing !important; user-select: none; }
+.gallery-track img { pointer-events: none; }
+
+/* ─── Ghost number (secciones con numeración grande) ─── */
+.activity-ghost-number {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(80px, 14vw, 160px);
+  line-height: 1;
+  font-weight: 700;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(23, 96, 111, 0.07);
+  transition: -webkit-text-stroke-color 0.5s ease;
+  user-select: none;
+}
+
+/* ─── Número fantasma de las tarjetas de panorama ───
+   Variante clara de .activity-ghost-number: el trazo va en crema porque
+   estos números van encima de fotografías. Dimensionado para la esquina
+   de una tarjeta, no para un panel a pantalla completa. */
+.panorama-number {
+  font-family: var(--font-cinzel), Georgia, serif;
+  font-size: clamp(3.5rem, 6vw, 5rem);
+  line-height: 1;
+  font-weight: 700;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(245, 240, 232, 0.35);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ─── Placeholder de imagen (mientras no hay fotos reales) ─── */
+.placeholder-img {
+  background:
+    repeating-linear-gradient(135deg, rgba(251,164,79,0.08) 0px, rgba(251,164,79,0.08) 2px, transparent 2px, transparent 14px),
+    linear-gradient(145deg, #0e4654 0%, #062636 100%);
+}

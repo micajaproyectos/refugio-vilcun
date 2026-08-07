@@ -1,0 +1,29 @@
+Coloca aquí el archivo de la tipografía Bromello.
+
+Nombre exacto esperado (el CSS los prueba en este orden):
+  - Bromello.woff2   ← preferido, el más liviano
+  - Bromello.woff
+  - Bromello.otf
+
+No hace falta tocar código: el @font-face ya está declarado en
+app/globals.css y la clase .script-accent la usa en toda la landing
+(el "del Vilcún" del hero, el eslogan, y las palabras doradas de cada
+título de sección).
+
+Mientras el archivo no esté, esos textos caen automáticamente en la
+itálica de Lora — que es como se veían antes — así que el sitio no se
+rompe. Al dejar el archivo aquí, Bromello se activa sola.
+
+IMPORTANTE — licencia:
+Bromello es una tipografía comercial (Nicky Laatz). Para publicarla en
+un sitio web se necesita licencia webfont; la licencia de escritorio
+(la que viene al comprar el .otf para usar en Illustrator/Photoshop)
+NO cubre el uso en web. Confirmar antes de salir a producción.
+
+Nota de ajuste fino:
+Bromello corre ópticamente más pequeña que Cinzel al mismo font-size.
+Cuando el archivo esté en su lugar, probablemente haya que subirle el
+tamaño a .script-accent en app/globals.css (hay un comentario ahí).
+
+Cinzel no va en esta carpeta: se carga desde Google Fonts vía
+next/font en app/layout.tsx.
