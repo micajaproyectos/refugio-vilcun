@@ -1,6 +1,9 @@
 Fotos para el fondo del Hero (portada de la web).
 
-EN USO: hero.png — toma cenital de dron del complejo (1609×977, horizontal).
+EN USO: hero.webp — toma cenital de dron del complejo (1609×977, horizontal).
+Antes era hero.png (2,49 MB); se recomprimió a WebP calidad 82 y quedó en
+233 KB, un 91% menos, sin diferencia visible. El PNG original sigue en el
+historial de git, en el commit inicial f177b6c, por si hiciera falta.
 Se muestra a pantalla completa en components/Hero.tsx con object-cover y el
 paneo suave .hero-kb.
 
