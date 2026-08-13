@@ -36,13 +36,26 @@ export default function Hero() {
         />
         {/* Tinte parejo — la toma aérea tiene mucho verde claro y sin él
             el texto crema del hero pierde contraste. */}
-        <div className="absolute inset-0 z-10" style={{ background: 'rgba(6, 38, 54, 0.32)' }} />
-        {/* Refuerzo inferior: el titular y los CTA van anclados abajo. */}
+        <div className="absolute inset-0 z-10" style={{ background: 'rgba(6, 38, 54, 0.28)' }} />
+        {/* Velo central. Antes el refuerzo iba abajo, porque abajo iba el
+            texto; ahora el bloque está centrado y necesita su propio fondo
+            justo ahí, encima del edificio principal, que es la zona más
+            movida de la foto. Elíptico y no rectangular para que el borde no
+            se note como una banda. */}
         <div
           className="absolute inset-0 z-10"
           style={{
             background:
-              'linear-gradient(to top, rgba(6,38,54,0.88) 0%, rgba(6,38,54,0.45) 38%, transparent 68%)',
+              'radial-gradient(ellipse 72% 58% at 50% 48%, rgba(6,38,54,0.55) 0%, rgba(6,38,54,0.3) 55%, transparent 78%)',
+          }}
+        />
+        {/* Se conserva un degradado inferior, ya suave: no sostiene texto, solo
+            cierra el hero contra la marquesina de actividades que viene abajo. */}
+        <div
+          className="absolute inset-0 z-10"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(6,38,54,0.7) 0%, rgba(6,38,54,0.25) 24%, transparent 48%)',
           }}
         />
       </div>
@@ -70,12 +83,14 @@ export default function Hero() {
         <span className="text-cream/20 text-[9px] tracking-[0.4em] font-mono">Chaitén · Chile</span>
       </div>
 
-      {/* ── Main content — anchored bottom-left ── */}
-      <div className="hero-content absolute inset-0 z-10 flex flex-col justify-end px-6 md:px-14 lg:px-20 pb-16 md:pb-20">
+      {/* ── Main content — centrado ── */}
+      <div className="hero-content absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6 md:px-14 lg:px-20">
 
-        {/* Overline */}
+        {/* Overline — la ubicación, que es el único dato que no repite la
+            barra superior. En crema y no en oro: el oro queda para la línea
+            manuscrita, que es la que tiene que mandar. */}
         <p
-          className={`hero-overline text-gold text-[9px] sm:text-[11px] tracking-[0.5em] uppercase font-medium text-shadow-dark mb-4 sm:mb-5 transition-all duration-1000 ${
+          className={`hero-overline text-cream/75 text-[9px] sm:text-[11px] tracking-[0.5em] uppercase font-medium text-shadow-md mb-6 sm:mb-7 transition-all duration-1000 ${
             loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
           style={{ transitionDelay: '200ms' }}
@@ -83,56 +98,40 @@ export default function Hero() {
           Chaitén &nbsp;·&nbsp; Carretera Austral &nbsp;·&nbsp; Patagonia Chilena
         </p>
 
-        {/* Title */}
-        <h1 className="font-serif leading-[0.88] mb-6 md:mb-8 text-shadow-dark">
-          <span
-            className={`hero-title-a block text-cream font-semibold tracking-tight transition-all duration-1000 ${
-              loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-            style={{ fontSize: 'clamp(3.2rem, 10vw, 10.5rem)', transitionDelay: '350ms' }}
-          >
-            Refugio
+        {/* Titular — la invitación, en sándwich de versales y manuscrita.
+            El nombre del negocio NO va acá: ya está permanente en la barra
+            superior. Los tamaños viven en globals.css (.hero-claim y las dos
+            clases que cuelgan de ella); acá solo va el escalonado de entrada.
+            El <h1> sigue conteniendo la frase completa como texto plano, así
+            que lectores de pantalla y buscadores la reciben entera. */}
+        <h1 className="hero-claim font-serif max-w-4xl text-shadow-crisp mb-9 md:mb-11">
+          {/* Caja mixta en el HTML: las versales las pone el CSS, para que el
+              lector de pantalla lea las palabras y no las deletree. */}
+          <span className={`reveal-line ${loaded ? 'is-in' : ''}`}>
+            <span className="claim-cap text-cream block" style={{ transitionDelay: '320ms' }}>
+              Vive una
+            </span>
           </span>
-          <span
-            className={`hero-title-b block tracking-tight transition-all duration-1000 ${
-              loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-            style={{ fontSize: 'clamp(2.8rem, 8.5vw, 9rem)', transitionDelay: '500ms' }}
-          >
-            {/* "del" va en versalitas por CSS y no escrito "DEL": así el
-                lector de pantalla lo lee como palabra y no deletrea D-E-L.
-                Hereda Cinzel del <h1>, igual que "Refugio". */}
-            <span className="text-cream font-semibold uppercase">del</span>{' '}
-            <span className="text-gold script-accent">Vilcún</span>
+          <span className={`claim-script-line reveal-line ${loaded ? 'is-in' : ''}`}>
+            {/* Sin `nowrap`: en teléfono se parte en dos líneas centradas, que
+                es mejor que encogerla hasta que no se lea. */}
+            <span className="claim-script text-gold-light" style={{ transitionDelay: '460ms' }}>
+              experiencia patagónica
+            </span>
+          </span>
+          <span className={`reveal-line ${loaded ? 'is-in' : ''}`}>
+            <span className="claim-cap text-cream block" style={{ transitionDelay: '600ms' }}>
+              única
+            </span>
           </span>
         </h1>
 
-        {/* Rule + Subtitle */}
-        <div
-          className={`hero-sub flex items-start gap-3 sm:gap-5 mb-6 sm:mb-7 md:mb-9 transition-all duration-1000 ${
-            loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-          style={{ transitionDelay: '650ms' }}
-        >
-          {/* El filete se acorta en teléfonos: a 56px + gap de 20px se comía
-              casi un cuarto del ancho útil y dejaba el subtítulo muy angosto. */}
-          <div className="w-8 sm:w-14 h-px bg-gold/60 mt-[0.7rem] sm:mt-[0.85rem] flex-shrink-0" />
-          <div className="min-w-0">
-            <p className="script-accent text-cream text-lg sm:text-xl md:text-2xl lg:text-[1.75rem] leading-snug text-shadow-dark">
-              Ven a disfrutar de una experiencia patagónica única,
-            </p>
-            <p className="hero-badge inline-block mt-3 bg-ink/50 backdrop-blur-sm border-l-[2px] border-gold/70 text-gold text-[9px] md:text-[11px] tracking-[0.35em] uppercase font-light px-2.5 sm:px-3 py-1.5">
-              Restaurante · Cafetería · Cabañas · Eventos
-            </p>
-          </div>
-        </div>
-
         {/* CTAs */}
         <div
-          className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-4 transition-all duration-1000 ${
+          className={`flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 transition-all duration-1000 ${
             loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
-          style={{ transitionDelay: '800ms' }}
+          style={{ transitionDelay: '780ms' }}
         >
           <button
             onClick={scrollToRestaurante}

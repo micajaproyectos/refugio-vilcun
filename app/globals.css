@@ -137,6 +137,16 @@ body::after {
   text-shadow: 0 1px 20px rgba(0, 0, 0, 0.75);
 }
 
+/* Para el titular del hero. `text-shadow-dark` desenfoca 40px de negro, y
+   encima de las OTRAS dos capas oscuras del hero (el tinte plano y el
+   degradado inferior) eso no aumentaba el contraste: ahumaba el contorno de
+   las letras y apagaba el crema. Acá el peso lo lleva un halo corto y denso
+   pegado al trazo, más un difuso amplio y suave que solo despega el bloque
+   del fondo. */
+.text-shadow-crisp {
+  text-shadow: 0 1px 2px rgba(3, 20, 30, 0.55), 0 10px 34px rgba(3, 20, 30, 0.5);
+}
+
 /* Acento manuscrito — reemplaza a la itálica, que Cinzel no tiene.
    `font-style: italic` + `font-synthesis: none` da el comportamiento correcto
    en ambos escenarios: si Bromello está presente se usa tal cual (sin oblicua
@@ -489,8 +499,8 @@ body::after {
 .hero-shell { height: 100dvh; }
 
 /* El mínimo de 640px solo desde tablet. En un teléfono corto o en horizontal
-   forzaría la sección por debajo del fold y, como el contenido va anclado
-   abajo (`justify-end`), escondería los CTA. */
+   forzaría la sección por debajo del pliegue y empujaría los CTA fuera de
+   cuadro. */
 @media (min-width: 768px) {
   .hero-shell { min-height: 640px; }
 }
@@ -504,39 +514,105 @@ body::after {
   .hero-img { object-position: center; }
 }
 
-/* ─── Hero: teléfonos angostos ─── */
+/* ─── Hero: la invitación centrada ──────────────────────────────────────────
+   "Vive una experiencia patagónica única", en sándwich: versales / manuscrita
+   / versales. Acá NO va el nombre del negocio: ya está permanente en la barra
+   superior (logotipo + "Refugio del Vilcún" + los cuatro rubros), y repetirlo
+   a pantalla completa gastaba el golpe de vista en algo que el visitante
+   acababa de leer. El hero invita; la barra identifica.
+
+   Las tres líneas cuelgan del font-size de .hero-claim, que es la unidad `em`
+   del bloque y vale el cuerpo de las VERSALES. La manuscrita se declara en em
+   sobre esa base, así los recortes por pantalla de más abajo tocan una sola
+   propiedad y la proporción interna no se mueve. */
+.hero-claim {
+  font-size: clamp(1.15rem, 2.3vw, 2.1rem);
+}
+
+/* Peso 400 e interletrado POSITIVO. Cinzel es una capital de inscripción
+   romana: está dibujada para versales con aire, y apretarla con `tracking-
+   tight` + `font-semibold` —como estaba el titular anterior— es justo lo
+   contrario de lo que la letra pide. El texto va en caja mixta en el HTML y
+   sube a versales por CSS, para que el lector de pantalla lea las palabras
+   y no las deletree. */
+.claim-cap {
+  text-transform: uppercase;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  line-height: 1.1;
+  /* Compensa el interletrado en texto centrado: CSS lo agrega también DESPUÉS
+     del último signo, y sin esta sangría el bloque se ve corrido a la derecha
+     por medio espacio. */
+  text-indent: 0.2em;
+}
+
+/* La manuscrita corre bastante más chica que Cinzel sobre el mismo cuerpo
+   —altura de x baja y mucho espacio interno reservado para astas y colas—,
+   de ahí el 2.2em: es compensación óptica más jerarquía, porque esta es la
+   línea que carga la frase.
+
+   El cuerpo va en la LÍNEA y no en el texto a propósito: el relleno de la
+   máscara de entrada está en `em`, así que puesto acá escala con la
+   manuscrita y no la recorta por las colas. */
+.claim-script-line {
+  font-size: 2.2em;
+}
+.claim-script {
+  display: block;
+  font-family: var(--font-script), var(--font-lora), cursive;
+  font-weight: 400;
+  line-height: 0.95;
+}
+
+/* ─── Entrada por máscara ───
+   Reemplaza al fundido con desplazamiento: la línea se descubre desde su
+   propia caja, que es como se revela un titular impreso. El relleno agranda
+   la caja de recorte para que la máscara no coma la tilde de "patagónica" ni
+   las colas de la manuscrita; el margen negativo devuelve el espacio al flujo. */
+.reveal-line {
+  display: block;
+  overflow: hidden;
+  padding: 0.16em 0.08em;
+  margin: -0.16em -0.08em;
+}
+.reveal-line > span {
+  display: block;
+  transform: translateY(115%);
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-line.is-in > span {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-line > span { transform: none; transition: none; }
+}
+
+/* ─── Hero: teléfonos angostos ───
+   El bloque ya no va anclado abajo sino centrado, así que aquí desaparecieron
+   los ajustes de `padding-bottom` que existían para que los CTA no cayeran
+   bajo el pliegue ni bajo la barra de gestos: centrado no hay tal riesgo. */
 @media (max-width: 639px) {
   /* El texto del overline mide 47 caracteres. Con 0.32em se pasaba del ancho
      útil (~312px en un Android de 360) y partía en dos líneas con un corte
      arbitrario a media frase. */
   .hero-overline { letter-spacing: 0.18em; }
-  /* 0.1em y no 0.14em por lo mismo: el distintivo lleva cuatro rubros y con el
-     interletrado anterior desbordaba en las pantallas de 360px. */
-  .hero-badge { letter-spacing: 0.1em; }
-
-  /* Respeta la barra de gestos de iOS/Android, que se superpone al contenido
-     y quedaba mordiendo el borde inferior de los botones. */
-  .hero-content { padding-bottom: calc(4rem + env(safe-area-inset-bottom)); }
 }
 
 @media (max-width: 767px) and (max-height: 720px) {
-  .hero-content { padding-bottom: calc(3rem + env(safe-area-inset-bottom)); }
-  .hero-title-a { font-size: 3.4rem !important; }
-  .hero-title-b { font-size: 2.9rem !important; }
-  .hero-sub { margin-bottom: 1.25rem; }
+  /* Cuerpo de las versales: la manuscrita cuelga de él en `em` y baja sola.
+     A 1.15rem "experiencia patagónica" parte en dos líneas centradas, que es
+     el comportamiento buscado en pantalla angosta. */
+  .hero-claim { font-size: 1.15rem !important; }
   .hero-cta { padding-top: 1rem; padding-bottom: 1rem; }
 }
 
 /* Teléfono en horizontal: el alto útil baja a ~350px y el hero completo no
-   cabe de ninguna manera. Se comprime todo lo comprimible y se ocultan los
-   dos adornos que no cargan información. */
+   cabe de ninguna manera. Se comprime todo lo comprimible y se oculta el
+   adorno que no carga información. */
 @media (max-width: 900px) and (max-height: 480px) and (orientation: landscape) {
-  .hero-content { padding-bottom: 1.75rem; }
-  .hero-title-a { font-size: 2.6rem !important; }
-  .hero-title-b { font-size: 2.1rem !important; }
+  .hero-claim { font-size: 1rem !important; }
   .hero-overline { display: none; }
-  .hero-badge { display: none; }
-  .hero-sub { margin-bottom: 1rem; }
   .hero-cta { padding-top: 0.75rem; padding-bottom: 0.75rem; }
 }
 

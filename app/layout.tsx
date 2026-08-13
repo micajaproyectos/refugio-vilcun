@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Cinzel, Lora } from 'next/font/google';
+import { Cinzel, Lora, Yellowtail } from 'next/font/google';
 import {
   SITE_URL,
   SITE_NAME,
@@ -19,13 +19,27 @@ import './globals.css';
 // Cinzel — tipografía de títulos, alineada con el logotipo corporativo.
 // Regular (400) es el peso base; se cargan además 500/600/700 porque la
 // jerarquía existente usa font-medium/semibold y sin esos cortes el navegador
-// los sintetizaría (falso negrita). Cinzel no tiene cursiva: los acentos que
-// antes iban en itálica ahora usan Bromello (.font-script en globals.css).
+// los sintetizaría (falso negrita). Cinzel no tiene cursiva: los acentos van
+// en .script-accent (itálica de Lora) y la manuscrita del hero en .claim-script.
 const cinzel = Cinzel({
   subsets: ['latin'],
   variable: '--font-cinzel',
   display: 'swap',
   weight: ['400', '500', '600', '700'],
+});
+
+// Yellowtail — la manuscrita del titular del hero (.claim-script), en el mismo
+// estilo de pincel que el "Vilcún" del logotipo. Ocupa el lugar que Bromello
+// nunca llegó a ocupar: el archivo comercial no está en public/fonts/ y,
+// mientras faltara, cualquier trazo manuscrito caía en la itálica de Lora, que
+// es una cursiva de libro y no un pincel. Yellowtail es lo más cercano al
+// logotipo dentro de Google Fonts, y al servirse por next/font no depende de
+// que nadie copie un archivo a mano.
+const yellowtail = Yellowtail({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-script',
+  display: 'swap',
+  weight: '400',
 });
 
 const lora = Lora({
@@ -139,7 +153,7 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${cinzel.variable} ${lora.variable}`}>
+    <html lang="es" className={`${cinzel.variable} ${lora.variable} ${yellowtail.variable}`}>
       <head>
         {/* El favicon lo declara `metadata.icons` con el logo corporativo. */}
         <script

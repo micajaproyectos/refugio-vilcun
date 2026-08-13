@@ -29,10 +29,13 @@ const config: Config = {
       },
       fontFamily: {
         // Cinzel — títulos y detalles. Lora — cuerpo de texto.
-        // Bromello — acentos manuscritos; ver @font-face en globals.css.
+        // Manuscrita — Yellowtail vía next/font (--font-script), con Bromello
+        // por delante para el día que aparezca el archivo comercial en
+        // public/fonts/; ver el @font-face en globals.css. El hero la usa a
+        // través de .claim-script, no de esta utilidad.
         serif:  ['var(--font-cinzel)', 'Georgia', 'serif'],
         sans:   ['var(--font-lora)', 'Georgia', 'serif'],
-        script: ['Bromello', 'var(--font-lora)', 'cursive'],
+        script: ['Bromello', 'var(--font-script)', 'var(--font-lora)', 'cursive'],
       },
       letterSpacing: {
         ultra: '0.35em',
