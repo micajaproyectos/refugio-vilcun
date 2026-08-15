@@ -6,7 +6,6 @@
 // sitemap.ts, robots.ts, manifest.ts y el JSON-LD.
 //
 // TODO (pendiente de la reunión 17/7/2026):
-//  - SITE_URL es un placeholder — reemplazar cuando exista el dominio real.
 //  - ADDRESS_STREET sigue vacío — falta el nombre/kilómetro exacto del camino.
 //    Las coordenadas (GEO_LAT / GEO_LNG) sí están confirmadas, ver más abajo.
 //  - Instagram y Facebook ya apuntan a los perfiles reales. La ficha de Google
@@ -14,7 +13,26 @@
 //    en app/layout.tsx.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const SITE_URL = 'https://www.refugiodelvilcun.cl';
+// De acá salen `metadataBase` (y con él las URL absolutas de las imágenes de
+// previsualización), la canónica, el sitemap, robots.txt y el JSON-LD.
+//
+// Estuvo fijo en 'https://www.refugiodelvilcun.cl' mientras ese dominio todavía
+// no existía, y eso rompía la previsualización al compartir: el sitio publicado
+// en Vercel declaraba su `og:image` en refugiodelvilcun.cl, un dominio que no
+// resuelve, así que WhatsApp no podía descargar ninguna imagen y mostraba el
+// enlace pelado. La imagen estaba bien; la dirección apuntaba al vacío.
+//
+// `VERCEL_PROJECT_PRODUCTION_URL` la da Vercel en build y en runtime, y es la
+// pensada justamente para esto: entrega el dominio de producción del proyecto
+// —hoy refugio-vilcun.vercel.app— y pasa sola al dominio propio en cuanto se
+// conecte, sin tocar este archivo. Viene sin el esquema, de ahí el https://.
+// `NEXT_PUBLIC_SITE_URL` queda por delante para poder forzar un valor a mano.
+const dominioVercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (dominioVercel ? `https://${dominioVercel}` : 'https://www.refugiodelvilcun.cl')
+).replace(/\/+$/, '');
 
 export const SITE_NAME = 'Refugio del Vilcún';
 

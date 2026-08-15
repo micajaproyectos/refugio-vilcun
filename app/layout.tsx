@@ -90,12 +90,19 @@ export const metadata: Metadata = {
     locale: 'es_CL',
     url: SITE_URL,
     siteName: SITE_NAME,
+    // Tarjeta compuesta —foto aérea + sello + rubros— en public/og/, generada
+    // por scripts/og-card.py. Antes acá iba restaurante_horizontal.png tal
+    // cual, y traía dos problemas: 1448×1086 es 4:3 y la tarjeta ancha pide
+    // 1.91:1, así que Facebook la recortaba arriba y abajo; y pesaba 2,4 MB,
+    // muy por encima del corte de WhatsApp, que descarta la miniatura y deja
+    // el enlace sin imagen. La tarjeta actual pesa ~150 KB. Si se cambia,
+    // mantenerla en JPEG y bajo 250 KB.
     images: [
       {
-        url: '/images/restaurante/restaurante_horizontal.png',
-        width: 1448,
-        height: 1086,
-        alt: 'Salón del restaurante Santa Bárbara en Refugio del Vilcún',
+        url: '/og/og-refugio.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Vista aérea del complejo Refugio del Vilcún, en Chaitén, con el sello del logotipo',
       },
     ],
   },
@@ -103,7 +110,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: ['/images/restaurante/restaurante_horizontal.png'],
+    images: ['/og/og-refugio.jpg'],
   },
 };
 
