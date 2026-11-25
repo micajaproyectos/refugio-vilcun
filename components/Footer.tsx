@@ -1,5 +1,7 @@
 'use client';
 import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import Condor from './Condor';
 import VideoBackground from './VideoBackground';
 import {
@@ -13,19 +15,34 @@ import {
   SOCIAL_INSTAGRAM,
   SOCIAL_FACEBOOK,
   GOOGLE_MAPS_URL,
+  ROUTES,
 } from '@/lib/site';
 
-const navLinks = [
-  { label: 'Inicio', href: '#inicio' },
-  { label: 'Restaurante', href: '#restaurante' },
-  { label: 'Spa', href: '#spa' },
-  { label: 'Eventos', href: '#eventos' },
-  { label: 'Galería', href: '#galeria' },
-  { label: 'Contacto', href: '#contacto' },
-  { label: 'Cómo llegar', href: '#como-llegar' },
+// El pie aparece en todas las páginas, así que sus enlaces tienen el mismo
+// problema que los de la barra superior: fuera de la home las anclas no
+// existen en el documento y `scrollIntoView` no hacía nada. Ver la nota
+// larga en components/Navbar.tsx — acá se aplica el mismo criterio.
+interface FooterLink {
+  label: string;
+  href: string;
+  tipo: 'ancla' | 'ruta';
+}
+
+const navLinks: FooterLink[] = [
+  { label: 'Inicio', href: '#inicio', tipo: 'ancla' },
+  { label: 'Restaurante', href: ROUTES.restaurante, tipo: 'ruta' },
+  { label: 'Spa', href: '#spa', tipo: 'ancla' },
+  { label: 'Eventos', href: '#eventos', tipo: 'ancla' },
+  { label: 'Galería', href: '#galeria', tipo: 'ancla' },
+  { label: 'Contacto', href: '#contacto', tipo: 'ancla' },
+  { label: 'Cómo llegar', href: '#como-llegar', tipo: 'ancla' },
 ];
 
 const scrollTo = (href: string) => {
+  if (href === '#inicio') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
   document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 };
 
@@ -56,6 +73,15 @@ function WhatsAppIcon() {
 }
 
 export default function Footer() {
+  const pathname = usePathname();
+  const enHome = pathname === ROUTES.home;
+
+  const hrefFueraDeHome = (href: string) =>
+    href === '#inicio' ? ROUTES.home : `${ROUTES.home}${href}`;
+
+  const claseLink =
+    'text-cream/60 hover:text-gold transition-colors duration-300 text-sm font-light text-left tracking-wide w-fit';
+
   return (
     <footer className="relative bg-bg-dark border-t border-cream/[0.06] overflow-hidden">
       {/* Velo cargado: el texto del pie es crema al 55–60 % sobre cuerpo
@@ -75,23 +101,35 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
           {/* Brand — logo corporativo (public/logo/) */}
           <div>
-            <button onClick={() => scrollTo('#inicio')} className="text-left mb-5 flex items-center gap-4 group">
-              <Image
-                src="/logo/logo-badge.png"
-                alt="Refugio del Vilcún"
-                width={512}
-                height={512}
-                className="w-16 h-16 flex-shrink-0 transition-transform duration-500 group-hover:scale-105"
-              />
-              <span className="block">
-                <span className="block font-serif text-gold text-2xl font-semibold leading-none mb-1.5">
-                  Refugio del Vilcún
-                </span>
-                <span className="block text-cream/60 text-[10px] tracking-[0.35em] uppercase font-light">
-                  Complejo Turístico
-                </span>
-              </span>
-            </button>
+            {/* Fuera de la home el sello lleva a la home; dentro, sube al inicio. */}
+            {(() => {
+              const marca = (
+                <>
+                  <Image
+                    src="/logo/logo-badge.png"
+                    alt="Refugio del Vilcún"
+                    width={512}
+                    height={512}
+                    sizes="64px"
+                    className="w-16 h-16 flex-shrink-0 transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <span className="block">
+                    <span className="block font-serif text-gold text-2xl font-semibold leading-none mb-1.5">
+                      Refugio del Vilcún
+                    </span>
+                    <span className="block text-cream/60 text-[10px] tracking-[0.35em] uppercase font-light">
+                      Complejo Turístico
+                    </span>
+                  </span>
+                </>
+              );
+              const clase = 'text-left mb-5 flex items-center gap-4 group';
+              return enHome ? (
+                <button onClick={() => scrollTo('#inicio')} className={clase}>{marca}</button>
+              ) : (
+                <Link href={ROUTES.home} className={clase}>{marca}</Link>
+              );
+            })()}
             <p className="text-cream/60 text-sm font-light leading-relaxed max-w-xs">
               Restaurante, cafetería, sauna, cabañas con tinaja y centro de eventos
               a pasos de la Playa Santa Bárbara.
@@ -139,15 +177,22 @@ export default function Footer() {
               Navegación
             </p>
             <nav className="flex flex-col gap-3">
-              {navLinks.map((link) => (
-                <button
-                  key={link.href}
-                  onClick={() => scrollTo(link.href)}
-                  className="text-cream/60 hover:text-gold transition-colors duration-300 text-sm font-light text-left tracking-wide w-fit"
-                >
-                  {link.label}
-                </button>
-              ))}
+              {navLinks.map((link) =>
+                link.tipo === 'ruta' || !enHome ? (
+                  <Link
+                    key={link.href}
+                    href={link.tipo === 'ruta' ? link.href : hrefFueraDeHome(link.href)}
+                    aria-current={link.tipo === 'ruta' && pathname === link.href ? 'page' : undefined}
+                    className={claseLink}
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <button key={link.href} onClick={() => scrollTo(link.href)} className={claseLink}>
+                    {link.label}
+                  </button>
+                )
+              )}
             </nav>
           </div>
 

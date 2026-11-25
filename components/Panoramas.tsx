@@ -1,7 +1,8 @@
 'use client';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { WA_LINKS } from '@/lib/site';
+import { WA_LINKS, ROUTES } from '@/lib/site';
 import Condor from './Condor';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -27,6 +28,20 @@ import Condor from './Condor';
 // Highlights: eran rasgos del restaurante, no del complejo.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── Sobre los dos destinos de cada tarjeta ──────────────────────────────────
+// Cada panorama puede llevar a DOS lugares y ninguno reemplaza al otro:
+//
+//   `href` → la página del rubro, para quien todavía está decidiendo.
+//   `wa`   → WhatsApp, para quien ya decidió y quiere reservar.
+//
+// Antes la tarjeta entera tenía un solo destino, WhatsApp, porque no existía
+// página adonde ir. Al aparecer las páginas la tentación es cambiar el botón
+// dorado por un "ver más", pero eso convierte un clic-a-reserva en un
+// clic-a-navegación y se pierde la conversión directa. Por eso conviven: la
+// FOTO navega a la página y el BOTÓN sigue abriendo WhatsApp.
+//
+// `href` es opcional a propósito: cafetería y cabañas todavía no tienen
+// página, y hasta que la tengan sus tarjetas se comportan como siempre.
 interface Panorama {
   num: string;
   tag: string;
@@ -35,6 +50,8 @@ interface Panorama {
   features: string[];
   cta: string;
   wa: string;
+  /** Página propia del rubro, si ya existe. */
+  href?: string;
   image: { src: string; alt: string };
 }
 
@@ -47,6 +64,7 @@ const panoramas: Panorama[] = [
     features: ['Asados al palo', 'Chicha en bota', 'Tenedor libre'],
     cta: 'Reservar mesa',
     wa: WA_LINKS.restaurante,
+    href: ROUTES.restaurante,
     image: {
       src: '/images/restaurante/plato5.png',
       alt: 'Tabla de picoteo con sushi, quesos, empanaditas y un cóctel de la casa, frente a la chimenea encendida',
@@ -163,6 +181,24 @@ export default function Panoramas() {
                 }}
               />
 
+              {/* ── Superficie clicable de la tarjeta ──
+                  Cubre la FOTO, no el bloque de texto: el contenido va en
+                  z-[7] y queda por encima, así el texto sigue siendo
+                  seleccionable y el botón de WhatsApp, clicable.
+
+                  Va `aria-hidden` + `tabIndex={-1}` porque DUPLICA el enlace
+                  real, que es el título. Sin eso, quien navega con teclado o
+                  lector de pantalla se encontraría dos veces con el mismo
+                  destino, una de ellas sin nombre accesible. */}
+              {p.href && (
+                <Link
+                  href={p.href}
+                  aria-hidden="true"
+                  tabIndex={-1}
+                  className="absolute inset-0 z-[6]"
+                />
+              )}
+
               {/* Filo dorado que crece desde el borde inferior */}
               <div className="absolute bottom-0 left-0 h-[3px] w-0 bg-gold group-hover:w-full transition-all duration-700 ease-out z-[3]" />
 
@@ -221,14 +257,39 @@ export default function Panoramas() {
                 {p.num}
               </span>
 
-              {/* Contenido encima de la foto */}
-              <div className="absolute inset-x-0 bottom-0 z-[2] p-7 md:p-9 lg:p-8 xl:p-10 transition-transform duration-700 ease-out group-hover:-translate-y-1.5">
+              {/* Contenido encima de la foto. z-[7] para quedar por sobre la
+                  superficie clicable de arriba — si bajara, el botón de
+                  WhatsApp dejaría de recibir el clic. */}
+              <div className="absolute inset-x-0 bottom-0 z-[7] p-7 md:p-9 lg:p-8 xl:p-10 transition-transform duration-700 ease-out group-hover:-translate-y-1.5">
                 <span className="inline-block text-gold text-[10px] tracking-[0.2em] uppercase font-medium border border-gold/40 bg-ink/40 backdrop-blur-sm px-3 py-1.5 mb-4">
                   {p.tag}
                 </span>
 
+                {/* El título es el enlace REAL a la página: es quien lleva el
+                    nombre accesible y quien recibe el foco del teclado. */}
                 <h3 className="font-serif text-cream text-2xl lg:text-[1.75rem] font-semibold leading-snug mb-4 text-shadow-md group-hover:text-gold transition-colors duration-500">
-                  {p.name}
+                  {p.href ? (
+                    <Link
+                      href={p.href}
+                      className="inline-flex items-start gap-2.5 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-gold-light"
+                    >
+                      {p.name}
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                        aria-hidden="true"
+                        className="mt-[0.45em] flex-shrink-0 opacity-0 -translate-x-1 group-hover:opacity-70 group-hover:translate-x-0 transition-all duration-500"
+                      >
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                      </svg>
+                    </Link>
+                  ) : (
+                    p.name
+                  )}
                 </h3>
 
                 <div className="w-10 h-px bg-gold/50 mb-4 group-hover:w-20 transition-all duration-700" />
@@ -254,6 +315,21 @@ export default function Panoramas() {
                     <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
                 </a>
+
+                {/* Que la foto entera sea clicable no se ve. Esta línea lo
+                    dice con todas sus letras, para quien no va a descubrirlo
+                    pasando el cursor por encima. */}
+                {p.href && (
+                  <Link
+                    href={p.href}
+                    className="mt-3.5 inline-flex items-center gap-2 text-cream/55 hover:text-gold text-[10px] tracking-[0.2em] uppercase font-light transition-colors duration-300"
+                  >
+                    Ver la carta y el detalle
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  </Link>
+                )}
               </div>
             </article>
           ))}

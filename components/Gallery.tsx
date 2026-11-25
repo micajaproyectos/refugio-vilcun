@@ -110,7 +110,7 @@ export default function Gallery() {
             <Photo
               src={item.src}
               alt={item.alt}
-              sizes="(max-width: 640px) 80vw, (max-width: 1024px) 45vw, 30vw"
+              sizes="(min-width: 768px) clamp(346.67px, 66.67vh, 693.34px), (min-width: 640px) 400px, 293.34px"
               className="transition-transform duration-[1200ms] ease-out group-hover:scale-105"
             />
             <div

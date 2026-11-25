@@ -95,7 +95,7 @@ function SplitRow({ r }: { r: EventReason & { imageSide: 'left' | 'right' } }) {
           src={r.image.src}
           alt={r.image.alt}
           fill
-          sizes="(max-width: 1024px) 100vw, 50vw"
+          sizes="(min-width: 1024px) 50vw, 100vw"
           className="object-cover"
         />
         {/* Degradado vertical en móvil (la foto queda encima del texto) */}

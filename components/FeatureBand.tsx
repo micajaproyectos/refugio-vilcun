@@ -1,6 +1,7 @@
 'use client';
-import { useState, useEffect, useCallback, ReactNode } from 'react';
+import { useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -33,7 +34,13 @@ interface FeatureBandProps {
   titleAccent: string;
   body: ReactNode;
   signature?: string;
-  cta?: { label: string; href: string };
+  /**
+   * `external` por defecto es true (WhatsApp, que es el caso histórico) y
+   * abre en pestaña nueva. Ponerlo en false para un destino DENTRO del sitio:
+   * ahí navega con <Link> —sin recargar y con prefetch— y sin `target`, que
+   * en un enlace interno sólo deja pestañas huérfanas al visitante.
+   */
+  cta?: { label: string; href: string; external?: boolean };
   images: BandImage[];
   /** Proporción del marco, p.ej. '1 / 1' o '2 / 3'. Ver nota de arriba. */
   frameAspect: string;
@@ -59,6 +66,8 @@ export default function FeatureBand({
   const [active, setActive] = useState(0);
   const [hovering, setHovering] = useState(false);
   const [stopped, setStopped] = useState(false);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [inViewport, setInViewport] = useState(false);
 
   const paused = hovering || stopped;
   const single = images.length < 2;
@@ -69,10 +78,22 @@ export default function FeatureBand({
   );
 
   useEffect(() => {
-    if (paused || single) return;
-    const id = setInterval(() => setActive((i) => (i + 1) % images.length), intervalMs);
+    const frame = frameRef.current;
+    if (!frame) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setInViewport(entry.isIntersecting);
+    });
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (paused || single || !inViewport) return;
+    const id = setInterval(() => {
+      if (!document.hidden) setActive((i) => (i + 1) % images.length);
+    }, intervalMs);
     return () => clearInterval(id);
-  }, [paused, single, images.length, intervalMs]);
+  }, [paused, single, inViewport, images.length, intervalMs]);
 
   const imageFirst = imageSide === 'left';
 
@@ -104,19 +125,7 @@ export default function FeatureBand({
               </div>
             )}
 
-            {cta && (
-              <a
-                href={cta.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="reveal delay-500 inline-flex items-center gap-3 border border-gold/50 bg-gold/10 hover:bg-gold text-gold hover:text-ink text-[11px] tracking-[0.25em] uppercase font-medium px-7 py-3.5 transition-all duration-300"
-              >
-                {cta.label}
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-              </a>
-            )}
+            {cta && <CtaBanda cta={cta} />}
           </div>
 
           {/* Carrusel encuadrado */}
@@ -133,6 +142,7 @@ export default function FeatureBand({
               />
 
               <div
+                ref={frameRef}
                 className="relative overflow-hidden bg-bg-dark"
                 style={{ aspectRatio: frameAspect }}
                 onMouseEnter={() => setHovering(true)}
@@ -150,13 +160,17 @@ export default function FeatureBand({
                     }`}
                     aria-hidden={i !== active}
                   >
-                    <Image
-                      src={img.src}
-                      alt={img.alt}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 40vw"
-                      className="object-contain"
-                    />
+                    {/* Montar solo la primera foto hasta que el marco se vea.
+                        Las otras se cargan cuando el visitante llega al carrusel. */}
+                    {(inViewport || i === active) && (
+                      <Image
+                        src={img.src}
+                        alt={img.alt}
+                        fill
+                        sizes="(min-width: 1280px) 456px, (min-width: 1024px) calc(41.67vw - 77.33px), (min-width: 768px) calc(100vw - 96px), calc(100vw - 48px)"
+                        className="object-contain"
+                      />
+                    )}
                   </div>
                 ))}
 
@@ -223,5 +237,34 @@ export default function FeatureBand({
         </div>
       </div>
     </section>
+  );
+}
+
+/** El botón de la banda. Externo abre en pestaña nueva; interno navega con
+    <Link>, que precarga la ruta y no recarga el documento. */
+function CtaBanda({ cta }: { cta: { label: string; href: string; external?: boolean } }) {
+  const clase =
+    'reveal delay-500 inline-flex items-center gap-3 border border-gold/50 bg-gold/10 hover:bg-gold text-gold hover:text-ink text-[11px] tracking-[0.25em] uppercase font-medium px-7 py-3.5 transition-all duration-300';
+
+  const flecha = (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+
+  if (cta.external === false) {
+    return (
+      <Link href={cta.href} className={clase}>
+        {cta.label}
+        {flecha}
+      </Link>
+    );
+  }
+
+  return (
+    <a href={cta.href} target="_blank" rel="noopener noreferrer" className={clase}>
+      {cta.label}
+      {flecha}
+    </a>
   );
 }

@@ -1,25 +1,60 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { ROUTES } from '@/lib/site';
 
-const navLinks = [
-  { label: 'Inicio', href: '#inicio' },
-  { label: 'Restaurante', href: '#restaurante' },
-  { label: 'Spa', href: '#spa' },
-  { label: 'Eventos', href: '#eventos' },
-  { label: 'Galería', href: '#galeria' },
-  { label: 'Contacto', href: '#contacto' },
+// ─────────────────────────────────────────────────────────────────────────────
+// Barra superior. Sirve a DOS contextos distintos y por eso no puede navegar
+// siempre igual:
+//
+//   · En la home (/) los destinos son secciones de la misma página, y el salto
+//     se hace con scroll suave.
+//   · En una subpágina (/restaurante-chaiten, …) esas secciones NO EXISTEN en
+//     el documento. Antes este componente resolvía todo con
+//     `document.querySelector(href)?.scrollIntoView()`, que fuera de la home
+//     devolvía null y dejaba el menú completo —y el botón "Reservar"— sin
+//     hacer absolutamente nada. Ahí los enlaces de ancla pasan a apuntar a
+//     `/#seccion`, que carga la home y baja a la sección.
+//
+// De ahí que cada enlace declare su `tipo`: 'ancla' vive dentro de la home,
+// 'ruta' es una página propia y siempre se navega con <Link>.
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface NavLink {
+  label: string;
+  href: string;
+  tipo: 'ancla' | 'ruta';
+}
+
+const navLinks: NavLink[] = [
+  { label: 'Inicio', href: '#inicio', tipo: 'ancla' },
+  // El restaurante ya tiene página propia, así que la barra manda ahí y no a
+  // la sección de tarjetas. Cuando existan cafetería y cabañas, entran igual.
+  { label: 'Restaurante', href: ROUTES.restaurante, tipo: 'ruta' },
+  { label: 'Spa', href: '#spa', tipo: 'ancla' },
+  { label: 'Eventos', href: '#eventos', tipo: 'ancla' },
+  { label: 'Galería', href: '#galeria', tipo: 'ancla' },
+  { label: 'Contacto', href: '#contacto', tipo: 'ancla' },
 ];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  const enHome = pathname === ROUTES.home;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
+    // Se evalúa también al montar: al llegar a una subpágina con el scroll ya
+    // restaurado a media página, sin esto la barra quedaría transparente sobre
+    // el contenido claro hasta que el visitante moviera la rueda.
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -29,6 +64,9 @@ export default function Navbar() {
     }
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
+
+  // El menú móvil se cierra en cuanto se navega a otra ruta.
+  useEffect(() => { setMenuOpen(false); }, [pathname]);
 
   const scrollTo = useCallback((href: string) => {
     setMenuOpen(false);
@@ -45,6 +83,57 @@ export default function Navbar() {
     }, menuOpen ? 300 : 0);
   }, [menuOpen]);
 
+  /**
+   * Destino de un enlace de ancla cuando NO estamos en la home: '#spa' pasa a
+   * '/#spa', y el caso especial '#inicio' a '/' pelado — un hash que no
+   * corresponde a ningún id deja la página arriba igual, pero ensucia la URL.
+   */
+  const hrefFueraDeHome = (href: string) =>
+    href === '#inicio' ? ROUTES.home : `${ROUTES.home}${href}`;
+
+  /** Un enlace del menú, resuelto según dónde estemos parados. */
+  function NavItem({ link, className }: { link: NavLink; className: string }) {
+    const activo = link.tipo === 'ruta' && pathname === link.href;
+
+    if (link.tipo === 'ruta' || !enHome) {
+      return (
+        <Link
+          href={link.tipo === 'ruta' ? link.href : hrefFueraDeHome(link.href)}
+          onClick={() => setMenuOpen(false)}
+          aria-current={activo ? 'page' : undefined}
+          className={className}
+        >
+          {link.label}
+        </Link>
+      );
+    }
+
+    return (
+      <button onClick={() => scrollTo(link.href)} className={className}>
+        {link.label}
+      </button>
+    );
+  }
+
+  /** El CTA "Reservar" apunta al formulario de contacto, que vive en la home. */
+  function ReservarCTA({ label, className }: { label: string; className: string }) {
+    if (!enHome) {
+      return (
+        <Link href={`${ROUTES.home}#contacto`} onClick={() => setMenuOpen(false)} className={className}>
+          {label}
+        </Link>
+      );
+    }
+    return (
+      <button onClick={() => scrollTo('#contacto')} className={className}>
+        {label}
+      </button>
+    );
+  }
+
+  const linkBase =
+    'transition-colors duration-300 text-xs tracking-[0.2em] uppercase font-light relative after:absolute after:bottom-0 after:left-0 after:h-px after:bg-gold after:transition-all after:duration-300 hover:after:w-full hover:text-gold';
+
   return (
     <>
       <nav
@@ -56,51 +145,37 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo corporativo (public/logo/) — se usa el sello circular, que se lee
-              igual sobre el hero oscuro y sobre la barra crema al hacer scroll. */}
-          <button onClick={() => scrollTo('#inicio')} className="text-left group flex items-center gap-3">
-            <Image
-              src="/logo/logo-badge.png"
-              alt="Refugio del Vilcún"
-              width={512}
-              height={512}
-              priority
-              className="w-11 h-11 md:w-14 md:h-14 flex-shrink-0 transition-transform duration-500 group-hover:scale-105"
-            />
-            <span className="block">
-              <span className="block font-serif text-gold text-xl md:text-2xl font-semibold tracking-wide leading-none group-hover:text-gold-light transition-colors duration-300">
-                Refugio del Vilcún
-              </span>
-              {/* El interletrado baja en pantallas chicas: con cuatro rubros
-                  esta línea mide ~43 caracteres y con 0.3em fijo se parte en
-                  dos incluso en notebooks, donde compite por ancho con el menú
-                  y el botón de reserva. */}
-              <span className={`block text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.22em] xl:tracking-[0.3em] uppercase mt-1 font-light leading-tight transition-colors duration-500 ${scrolled ? 'text-ink/40' : 'text-cream/50'}`}>
-                Restaurante · Cafetería · Cabañas · Eventos
-              </span>
-            </span>
-          </button>
+              igual sobre el hero oscuro y sobre la barra crema al hacer scroll.
+              Fuera de la home es un <Link> a la home; dentro, sube al inicio. */}
+          {enHome ? (
+            <button onClick={() => scrollTo('#inicio')} className="text-left group flex items-center gap-3">
+              <Marca scrolled={scrolled} />
+            </button>
+          ) : (
+            <Link href={ROUTES.home} className="text-left group flex items-center gap-3">
+              <Marca scrolled={scrolled} />
+            </Link>
+          )}
 
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => scrollTo(link.href)}
-                className={`transition-colors duration-300 text-xs tracking-[0.2em] uppercase font-light relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-gold after:transition-all after:duration-300 hover:after:w-full hover:text-gold ${scrolled ? 'text-ink/60' : 'text-cream/70'}`}
-              >
-                {link.label}
-              </button>
-            ))}
+            {navLinks.map((link) => {
+              const activo = link.tipo === 'ruta' && pathname === link.href;
+              return (
+                <NavItem
+                  key={link.href}
+                  link={link}
+                  className={`${linkBase} ${activo ? 'after:w-full text-gold' : 'after:w-0'} ${
+                    activo ? '' : scrolled ? 'text-ink/60' : 'text-cream/70'
+                  }`}
+                />
+              );
+            })}
           </div>
 
           {/* CTA */}
           <div className="hidden lg:block">
-            <button
-              onClick={() => scrollTo('#contacto')}
-              className="btn-gold text-xs"
-            >
-              Reservar
-            </button>
+            <ReservarCTA label="Reservar" className="btn-gold text-xs" />
           </div>
 
           {/* Hamburger */}
@@ -108,6 +183,7 @@ export default function Navbar() {
             className="lg:hidden flex flex-col justify-center gap-1.5 p-2 w-10 h-10"
             onClick={() => setMenuOpen((v) => !v)}
             aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-expanded={menuOpen}
           >
             <span
               className={`block w-6 h-px bg-gold origin-center transition-all duration-300 ${
@@ -145,26 +221,54 @@ export default function Navbar() {
         >
           <div className="gold-line-short mb-8" />
           <div className="flex flex-col gap-6">
-            {navLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => scrollTo(link.href)}
-                className="text-cream/70 hover:text-gold transition-colors duration-300 text-xs tracking-[0.25em] uppercase text-left"
-              >
-                {link.label}
-              </button>
-            ))}
+            {navLinks.map((link) => {
+              const activo = link.tipo === 'ruta' && pathname === link.href;
+              return (
+                <NavItem
+                  key={link.href}
+                  link={link}
+                  className={`transition-colors duration-300 text-xs tracking-[0.25em] uppercase text-left ${
+                    activo ? 'text-gold' : 'text-cream/70 hover:text-gold'
+                  }`}
+                />
+              );
+            })}
           </div>
           <div className="mt-auto">
-            <button
-              onClick={() => scrollTo('#contacto')}
-              className="btn-gold w-full text-center text-xs"
-            >
-              Reservar mesa
-            </button>
+            <ReservarCTA label="Reservar mesa" className="btn-gold w-full text-center text-xs" />
           </div>
         </div>
       </div>
+    </>
+  );
+}
+
+/** Logotipo + nombre. Va aparte porque lo envuelve un <button> o un <Link>
+    según el contexto, y el contenido es idéntico en ambos casos. */
+function Marca({ scrolled }: { scrolled: boolean }) {
+  return (
+    <>
+      <Image
+        src="/logo/logo-badge.png"
+        alt="Refugio del Vilcún"
+        width={512}
+        height={512}
+        sizes="(min-width: 768px) 56px, 44px"
+        priority
+        className="w-11 h-11 md:w-14 md:h-14 flex-shrink-0 transition-transform duration-500 group-hover:scale-105"
+      />
+      <span className="block">
+        <span className="block font-serif text-gold text-xl md:text-2xl font-semibold tracking-wide leading-none group-hover:text-gold-light transition-colors duration-300">
+          Refugio del Vilcún
+        </span>
+        {/* El interletrado baja en pantallas chicas: con cuatro rubros
+            esta línea mide ~43 caracteres y con 0.3em fijo se parte en
+            dos incluso en notebooks, donde compite por ancho con el menú
+            y el botón de reserva. */}
+        <span className={`block text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.22em] xl:tracking-[0.3em] uppercase mt-1 font-light leading-tight transition-colors duration-500 ${scrolled ? 'text-ink/40' : 'text-cream/50'}`}>
+          Restaurante · Cafetería · Cabañas · Eventos
+        </span>
+      </span>
     </>
   );
 }

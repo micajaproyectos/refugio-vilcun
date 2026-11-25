@@ -128,3 +128,24 @@ export const WA_LINKS = {
     'Hola, me gustaría consultar por Refugio del Vilcún.'
   ),
 };
+
+// ── Rutas del sitio ─────────────────────────────────────────────────────────
+// Los slugs llevan la localidad ("-chaiten", sin tilde) porque estas páginas
+// son la puerta de entrada desde Google para búsqueda local: quien va bajando
+// la Carretera Austral escribe "restaurante Chaitén", no el nombre del local.
+// La home no puede competir por esa consulta —tiene que hablar de restaurante,
+// cafetería, cabañas y eventos a la vez— y esa dispersión le impide rankear
+// por ninguna. Cada subpágina, en cambio, apunta a una sola.
+//
+// NUNCA poner la tilde en la URL: `chaitén` se serializa como `chait%C3%A9n`
+// al copiarse y se ve roto en cualquier lugar donde se pegue.
+//
+// El patrón es rubro-localidad y aplica a las tres. Las dos comentadas todavía
+// no existen como página: al crearlas se descomentan acá y se suman al
+// sitemap, y recién entonces se puede enlazar hacia ellas.
+export const ROUTES = {
+  home: '/',
+  restaurante: '/restaurante-chaiten',
+  // cafeteria: '/cafeteria-chaiten',
+  // cabanas:   '/cabanas-chaiten',
+} as const;
